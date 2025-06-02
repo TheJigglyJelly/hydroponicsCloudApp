@@ -1,7 +1,7 @@
 # - Import flask, os, and pyodbc (sql connection) - #
 from flask import Flask, render_template_string
 import os
-import pyodbc
+import pymysql
 
 # - Pass __name__ - # 
 app = Flask(__name__)
@@ -33,9 +33,15 @@ def getDatabase():
     connection = None
     try:
         # - pyodbc connection string to connect to database - #
-        connection = pyodbc.connect(f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={dbServ};DATABASE={dbDatabase};UID={dbUsername};PWD={dbPass}")
+        connection = pymysql.connect(
+            host     = dbServ,
+            user     = dbUsername,
+            password = dbPass,
+            database = dbDatabase,
+            port     = 3306
+        )
         cursor = connection.cursor()
-        cursor.execute("SELECT TOP 1 ph, ec, temp, timeStamp FROM sensor_data ORDER BY timeStamp DESC")
+        cursor.execute("SELECT ph, ec, temp, timeStamp FROM sensor_data ORDER BY timeStamp DESC LIMIT 1")
         row = cursor.fetchone()
 
         # - Insert database values into row - #
